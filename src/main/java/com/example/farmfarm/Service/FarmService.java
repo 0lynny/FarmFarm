@@ -34,36 +34,6 @@ public class FarmService {
         return farmRepository.findFarmList(criteria, keyword);
     }
 
-    //농장 전체 조회 및 정렬 (rating: 인기순 , old: 오래된 순, new: 신규순), Default: rating
-//    public List<FarmEntity> getFarmsOrderBy(String criteria) {
-//        switch (criteria) {
-//            case "old":
-//                return farmRepository.findAllByStatusLike(Sort.by(Sort.Direction.ASC, "fId"), "yes");
-//            case "new":
-//                return farmRepository.findAllByStatusLike(Sort.by(Sort.Direction.DESC, "fId"), "yes");
-//            default:
-//                return farmRepository.findAllByStatusLike(Sort.by(Sort.Direction.DESC, "rating"), "yes");
-//        }
-//    }
-
-    //농장 검색
-//    public List<FarmEntity> searchFarms(String keyword) {
-//        return farmRepository.findAllByNameContainingAndStatusLike(keyword, "yes");
-//    }
-
-    //농장 검색, 농장 정렬 같이
-//    public List<FarmEntity> searchSortFarms(String keyword, String criteria) {
-//        switch (criteria) {
-//            case "old":
-//                return farmRepository.findAllByNameContainingAndStatusLike(keyword, Sort.by(Sort.Direction.ASC, "fId"), "yes");
-//            case "new":
-//                return farmRepository.findAllByNameContainingAndStatusLike(keyword, Sort.by(Sort.Direction.DESC, "fId"), "yes");
-//            default:
-//                return farmRepository.findAllByNameContainingAndStatusLike(keyword, Sort.by(Sort.Direction.DESC, "rating"), "yes");
-//        }
-//    }
-
-
     public List<FarmEntity> searchByLocation(String locationCity, String locationGu) {
         return farmRepository.findAllByLocationCityAndLocationGu(locationCity, locationGu);
     }

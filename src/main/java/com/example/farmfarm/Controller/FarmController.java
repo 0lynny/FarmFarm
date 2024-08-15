@@ -70,11 +70,6 @@ public class FarmController {
             return mav;
         }
         ModelAndView mav = new ModelAndView("home/farm/allFarm");
-//        if (keyword.equals("")) {
-//            allFarm = farmService.getFarmsOrderBy(criteria);
-//        } else {
-//            allFarm = farmService.searchSortFarms(keyword, criteria);
-//        }
         allFarm = farmService.getFarmList(criteria, keyword);
         mav.addObject("farmList", allFarm);
         Gson gson = new Gson();
