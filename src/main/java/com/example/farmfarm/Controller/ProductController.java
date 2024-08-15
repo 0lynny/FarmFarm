@@ -5,10 +5,14 @@ import com.example.farmfarm.Entity.*;
 import com.example.farmfarm.Entity.Cart.Cart;
 import com.example.farmfarm.Entity.Cart.Item;
 import com.example.farmfarm.Service.*;
+import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import org.hibernate.Criteria;
 import org.hibernate.procedure.ProcedureOutputs;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -46,7 +50,6 @@ public class ProductController {
     public ModelAndView getProductForm(HttpSession session, @ModelAttribute("product")ProductEntity product) {
         FarmEntity farm = (FarmEntity)session.getAttribute("myFarm");
         ModelAndView mav = new ModelAndView("home/product/registerProduct");
-//        mav.addObject("farm", farm);
         return mav;
     }
 
@@ -83,7 +86,7 @@ public class ProductController {
         return null;
     }
 
-    // 상품 조회 (일반 상품일 경우 detail 페이지로, 경매 상품일 경우 경매 참여 form으로
+//     상품 조회 (일반 상품일 경우 detail 페이지로, 경매 상품일 경우 경매 참여 form으로
     @GetMapping("/{p_id}")
     public ModelAndView getProduct(@PathVariable("p_id") long p_id, HttpSession session) {
         ProductEntity product = productService.getProduct(p_id);
@@ -109,31 +112,19 @@ public class ProductController {
         }
     }
 
-    // 상품 리스트 조회, 검색, 정렬(신상품순-기본, 인기순, 낮은 가격순, 높은 가격순)
     @GetMapping("/list")
-    public ModelAndView getAllProduct(@RequestParam(value="keyword", required=false) String keyword, @RequestParam(value="sort", required=false) String sort){
+    public ModelAndView getAllProduct(@RequestParam(value = "sort", required = false) String sort,
+                                      @RequestParam(value = "keyword", required = false) String keyword) {
         List<ProductEntity> productList;
-        List<ProductEntity> resultList = new ArrayList<>();
-        ModelAndView mav;
 
-        if (!StringUtils.isEmpty(keyword)) { // 키워드 검색
-            mav = new ModelAndView("search/search");
-            productList = productService.getSearchProduct(keyword);
+        if (keyword != null || sort != null) {
+            productList = productService.getProductList(false, sort, keyword);
+        } else {
+            productList = productService.getProductList(false);
         }
-        else if (!StringUtils.isEmpty(sort)) { // 정렬
-            mav = new ModelAndView("home/product/allProduct");
-            productList = productService.getSortedProduct(sort);
-        }
-        else {
-            mav = new ModelAndView("home/product/allProduct");
-            productList = productService.getAllProduct();
-        }
-        for (ProductEntity val : productList) {
-            if (val.isAuction() == false) {
-                resultList.add(val);
-            }
-        }
-        mav.addObject("productList", resultList);
+        ModelAndView mav = new ModelAndView(keyword != null ? "search/search" : "home/product/allProduct");
+        mav.addObject("productList", productList);
+
         return mav;
     }
 
@@ -200,22 +191,14 @@ public class ProductController {
         return mav;
     }
 
-    // 경매 상품 리스트 조회
+//     경매 상품 리스트 조회
     @GetMapping("/auction/list")
-    public ModelAndView getAllAuctionProduct(@RequestParam(value="keyword", required=false) String keyword, @RequestParam(value="sort", required=false) String sort){
+    public ModelAndView getAllAuctionProduct(){
         List<ProductEntity> productList;
         List<ProductEntity> resultList = new ArrayList<>();
         ModelAndView mav = new ModelAndView("home/auction/auctionList");
 
-        if (!StringUtils.isEmpty(keyword)) { // 키워드 검색
-            productList = productService.getSearchProduct(keyword);
-        }
-        else if (!StringUtils.isEmpty(sort)) { // 정렬
-            productList = productService.getSortedProduct(sort);
-        }
-        else {
-            productList = productService.getAllAuctionProduct();
-        }
+        productList = productService.getProductList(true);
         for (ProductEntity val : productList) {
             if (val.isAuction() && val.getOpen_status() != 2) {
                 resultList.add(val);
@@ -224,6 +207,7 @@ public class ProductController {
         mav.addObject("productList", resultList);
         return mav;
     }
+
     @GetMapping("/{p_id}/group")
     public void getGroupList(HttpSession session, @PathVariable("p_id") long pId, Model model) {
         ProductEntity product = productService.getProduct(pId);

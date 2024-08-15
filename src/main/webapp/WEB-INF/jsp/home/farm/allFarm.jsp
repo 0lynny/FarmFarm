@@ -114,31 +114,41 @@
         function performSearch() {
             var searchInput = document.getElementById("searchInput");
             var searchText = searchInput.value;
+            var sortSelect = document.getElementById("sortSelect");
+            var selectedSort = sortSelect.value;
             let url = "";
+
             if (searchText === "") {
                 alert('검색어를 입력해주세요.');
             } else {
                 url += '?keyword=' + encodeURIComponent(searchText);
             }
+
+            if (selectedSort) {
+                url += (url.includes('?') ? '&' : '?') + 'sort=' + encodeURIComponent(selectedSort);
+            }
+
             window.location.href = url;
             console.log("검색어: " + searchText);
+            console.log("정렬: " + selectedSort);
         }
 
         document.addEventListener("DOMContentLoaded", function() {
             var sortSelect = document.getElementById("sortSelect");
             var selectedOption = localStorage.getItem("selectedOption");
+
             if (selectedOption) {
                 sortSelect.value = selectedOption;
             }
 
             sortSelect.addEventListener("change", function() {
-                var selectedValue = sortSelect.value;
+                performSearch(); // 정렬을 변경할 때 검색을 동시에 실행
+            });
 
-                if (selectedValue) {
-                    localStorage.setItem("selectedOption", selectedValue);
-                    var url = "";
-                    url += "?sort=" + selectedValue;
-                    window.location.href = url;
+            var searchInput = document.getElementById("searchInput");
+            searchInput.addEventListener("keydown", function(event) {
+                if (event.key === "Enter") {
+                    performSearch();
                 }
             });
         });

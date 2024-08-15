@@ -4,7 +4,7 @@ import com.example.farmfarm.Entity.FarmEntity;
 import com.example.farmfarm.Entity.ProductEntity;
 import com.example.farmfarm.Entity.UserEntity;
 import com.example.farmfarm.Repository.OrderDetailRepository;
-import com.example.farmfarm.Repository.ProductRepository;
+import com.example.farmfarm.Repository.Product.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -68,27 +68,18 @@ public class ProductService {
         return product;
     }
 
-    // 일반 상품 리스트 조회(신상품순 - 기본)
-    public List<ProductEntity> getAllProduct() {
-        List<ProductEntity> productList =  (List<ProductEntity>) productRepository.findAllByStatusLike(Sort.by(Sort.Direction.DESC, "pId"), "yes");
-        List<ProductEntity> resultList = new ArrayList<>();
-        for (ProductEntity val : productList) {
-            if (!val.isAuction()) {
-                resultList.add(val);
-            }
-        }
-        return resultList;
+    //TODO 이것도 합치자
+    public List<ProductEntity> getProductList(Boolean isAuction) {
+        return productRepository.findProductList(isAuction, null, null);
     }
 
-    public List<ProductEntity> getAllAuctionProduct() {
-        List<ProductEntity> productList =  (List<ProductEntity>) productRepository.findAllByStatusLike(Sort.by(Sort.Direction.DESC, "pId"), "yes");
-        List<ProductEntity> resultList = new ArrayList<>();
-        for (ProductEntity val : productList) {
-            if (val.isAuction()) {
-                resultList.add(val);
-            }
-        }
-        return resultList;
+    //TODO - QueryDsl로 Refactoring 필요
+    // 검색어 조회
+    // 정렬 기능 (인기순, 낮은 가격순, 높은 가격순)
+    //상품 정렬 및 검색
+    public List<ProductEntity> getProductList(Boolean isAuction, String criteria, String keyword) {
+        List<ProductEntity> productList = productRepository.findProductList(isAuction, criteria, keyword);
+        return productList;
     }
 
     // 농장별 상품 리스트 조회
@@ -140,32 +131,6 @@ public class ProductService {
         else {
             throw new Exception();
         }
-    }
-
-    // 상품 검색
-    public List<ProductEntity> getSearchProduct(String keyword) {
-        List<ProductEntity> productList = productRepository.findByNameContainingAndStatusLike(keyword, "yes");
-        return productList;
-    }
-
-    // 상품 정렬 (인기순, 낮은 가격순, 높은 가격순)
-    public List<ProductEntity> getSortedProduct(String sort) {
-        List<ProductEntity> productList;
-        switch (sort) {
-            case "rating":
-                productList = productRepository.findAllByStatusLikeOrderByRatingDesc("yes");
-                break;
-            case "lowPrice":
-                productList = productRepository.findAllByStatusLikeOrderByPriceAsc("yes");
-                break;
-            case "highPrice":
-                productList = productRepository.findAllByStatusLikeOrderByPriceDesc("yes");
-                break;
-            default:
-                productList = (List<ProductEntity>) productRepository.findAllByStatusLike(Sort.by(Sort.Direction.DESC, "p_id"), "yes");
-                break;
-        }
-        return productList;
     }
 
 }

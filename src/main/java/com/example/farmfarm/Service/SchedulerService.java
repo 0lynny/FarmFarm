@@ -1,10 +1,9 @@
 package com.example.farmfarm.Service;
 
-import ch.qos.logback.core.net.SyslogOutputStream;
 import com.example.farmfarm.Controller.PaymentController;
 import com.example.farmfarm.Entity.*;
 import com.example.farmfarm.Repository.*;
-import org.apache.jasper.compiler.JspUtil;
+import com.example.farmfarm.Repository.Product.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -52,7 +51,7 @@ public class SchedulerService {
 
     @Scheduled(cron = "0 * * * * *")
     public void closeAuction() throws ParseException {
-        List<ProductEntity> products = productService.getAllAuctionProduct();
+        List<ProductEntity> products = productService.getProductList(true);
         Calendar current = Calendar.getInstance();
         for (ProductEntity product : products) {
             String date = product.getCloseCalendar();
@@ -68,7 +67,7 @@ public class SchedulerService {
 
     @Scheduled(cron = "0 * * * * *")
     public void selectTopAuction() throws ParseException {
-        List<ProductEntity> products = productService.getAllAuctionProduct();
+        List<ProductEntity> products = productService.getProductList(true);
         for (ProductEntity product : products) {
             if (product.getOpen_status() == 2) {
                 List<AuctionEntity> auctions = auctionService.auctionList(product); // 제시 가격이 비싼 순 -> 수량이 많은 순으로 정렬
