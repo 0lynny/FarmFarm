@@ -105,11 +105,11 @@ public class HomeController {
             System.out.println("/kakao로 redirect!!!");
             return "redirect:/kakao";
         }
-        List<ProductEntity> products = productService.getAllProduct();
+        List<ProductEntity> products = productService.getProductList(false);
         model.addAttribute("products", products);
-        List<ProductEntity> auctions = productService.getAllAuctionProduct();
+        List<ProductEntity> auctions = productService.getProductList(true);
         model.addAttribute("auctions", auctions);
-        List<FarmEntity> farms = farmService.getFarmsOrderBy("new");
+        List<FarmEntity> farms = farmService.getFarmList("new", null);
         model.addAttribute("farms", farms);
         return "home/home";
     }
@@ -122,12 +122,6 @@ public class HomeController {
     public String home2(HttpServletRequest request) {
         return "home/home";
     }
-
-//    @GetMapping("/category")
-//    public String category() {
-//        return "category/categories";
-//    }
-
 
     @GetMapping("/category")
     public String category(Model model) {
@@ -162,11 +156,6 @@ public class HomeController {
         Map<String, Object> mv = new HashMap<>();
         UserEntity user = (UserEntity)session.getAttribute("user");
         FarmEntity myFarm = farmService.getMyFarm(user);
-//        if (!myFarm.getStatus().equals("yes")) {
-//            myFarm = null;
-//            System.out.println("여기 안찍히냐?");
-//        }
-//        System.out.println("111111111" + myFarm.getStatus());
         mv.put("user", user);
         model.addAttribute("user", user);
         session.setAttribute("uid", user.getUId());
