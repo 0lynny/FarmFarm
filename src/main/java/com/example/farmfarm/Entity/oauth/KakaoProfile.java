@@ -30,6 +30,7 @@ public class KakaoProfile {
         @Data
         public class Profile {
             public String nickname;
+            public Boolean is_default_nickname;
             public String thumbnail_image_url;
             public String profile_image_url; // 이미지 경로 필드2
             public Boolean is_default_image;
